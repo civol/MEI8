@@ -1,0 +1,108 @@
+MEI8: simple 8-bit Harward CPU  
+==============================
+
+Data registers:       A, B, C, D, E, F, G, H
+Corresponding number: 0, 1, 2, 3, 4, 5, 6, 7
+
+Accumulator:    A
+Global pointer: G
+Stack pointer:  H
+
+Special registers:
+PC: Program Counter
+FR (ZF,SF,CF,VF): Flags
+   ZF: Zero
+   SF: Sign
+   CF: Carry
+   VF: Overflow
+S (M, -, -, -, -, -, EI1, EI0): Status Register
+   M: Supervisor Model
+   EI1: Enable Interrupt 1
+   EI0: Enable Interrupt 0
+
+Interrupts
+==========
+
+Two external interrupts: IQ0 and IQ1
+10 exceptions: 8 traps, Illegal instruction, Unauthorized instruction
+
+Instruction formats:
+====================
+o: operation
+s: source register
+d: destination register
+c: condition
+i: immediate
+
+Format 0:
+00 | sss | ddd
+
+Format 1:
+01ooo | sss
+
+Format 2:
+10o | iiiii
+
+Format 3:
+110oo | iii
+1110o | iii
+
+Format 4:
+11111 | oooo
+
+Instructions:
+=============
+
+d: destination register
+s: source register
+i: immediate
+
+fr: the flags are modified
+
+Format 0:
+00000000: nop     ; No operation
+00sssddd: mov s,d ; d <- s
+00dddddd: mov 0,d ; d <- 0 (except A since 00000000 is nop)
+
+Format 1:
+01000sss: add s   ; A <- A + s, fr
+01001sss: sub s   ; A <- A - s, fr
+01010sss: inc s   ; s <- s + 1, fr
+01011sss: dec s   ; s <- s - 1, fr
+01100sss: and s   ; A <- A & s, fr
+01101sss: or  s   ; A <- A | s, fr
+01110sss: xor s   ; A <- A ^ s, fr
+
+10000sss: cp s    ; A - s, fr
+10001sss: st s    ; (G) <- s
+10010sss: ld s    ; s <- (G)
+10011sss: jr s    ; PC <- s
+
+Format 2:
+1010iiii: movl I  ; A <-  0000iiii
+1011iiii: movh I  ; A[7..4] <-  iiii
+
+Format 3:
+11000iii: br    I ; PC <- PC + sext(iii) 
+11001iii: br z  I ; PC <- PC + sext(iii) when ZF == 1
+11010iii: br c  I ; PC <- PC + sext(iii) when CF == 1
+11011iii: br s  I ; PC <- PC + sext(iii) when SF == 1
+11100iii: br v  I ; PC <- PC + sext(iii) when VF == 1
+11101iii: br nz I ; PC <- PC + sext(iii) when ZF == 0
+
+Format 4:
+11110000: neg     ; A <- -A, fr
+11110001: not     ; A <- ~A, fr
+11110010: shl     ; A <- A << 1, fr
+11110011: shr     ; A <- A >>> 1, fr
+11110100: sar     ; A <- A >> 1, fr
+11110110: trap    ; PC <- 0xFC; S[7] <- 1
+11110111: xs      ; A <-> S, in supervisor mode only
+11111000: ++ld    ; A <- (++G)
+11111001: ++st    ; (++G) <- A
+11111010: --ld    ; A <- (--G)
+11111011: --st    ; (--G) <- A
+11111100: push pc ; (--H) <- PC
+11111101: pop  pc ; PC <- (++H)
+11111110: halt
+11111111: reset
