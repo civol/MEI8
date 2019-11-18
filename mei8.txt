@@ -39,16 +39,17 @@ Format 0:
 
 Format 1:
 01ooo | sss
+100oo | sss
 
 Format 2:
-10o | iiiii
+101o | iiii
 
 Format 3:
 110oo | iii
 1110o | iii
 
 Format 4:
-11111 | oooo
+1111 | oooo
 
 Instructions:
 =============
@@ -64,7 +65,7 @@ Format 0:
 00sssddd: mov s,d ; d <- s
 00dddddd: mov 0,d ; d <- 0 (except A since 00000000 is nop)
 
-Format 1:
+Format 1a:
 01000sss: add s   ; A <- A + s, fr
 01001sss: sub s   ; A <- A - s, fr
 01010sss: inc s   ; s <- s + 1, fr
@@ -73,9 +74,10 @@ Format 1:
 01101sss: or  s   ; A <- A | s, fr
 01110sss: xor s   ; A <- A ^ s, fr
 
+Format 1b:
 10000sss: cp s    ; A - s, fr
-10001sss: st s    ; (G) <- s
-10010sss: ld s    ; s <- (G)
+10001sss: ld s    ; s <- (G)
+10010sss: st s    ; (G) <- s
 10011sss: jr s    ; PC <- s
 
 Format 2:
@@ -102,7 +104,7 @@ Format 4:
 11111001: ++st    ; (++G) <- A
 11111010: --ld    ; A <- (--G)
 11111011: --st    ; (--G) <- A
-11111100: push pc ; (--H) <- PC
+11111100: push pc ; (H--) <- PC
 11111101: pop  pc ; PC <- (++H)
 11111110: halt
 11111111: reset
